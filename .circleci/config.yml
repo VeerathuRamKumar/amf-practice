@@ -1,0 +1,30 @@
+version: 2.1
+
+jobs:
+  validate-yaml:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run:
+          name: Install yamllint
+          command: pip install yamllint
+      - run:
+          name: Lint AMF deployment YAML
+          command: yamllint -d relaxed amf/deployment.yaml
+
+  build-image:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build AMF image
+          command: docker build -t amf-practice:latest amf/
+
+workflows:
+  amf-pipeline:
+    jobs:
+      - validate-yaml
+      - build-image
